@@ -74,3 +74,59 @@ void condition(cpu& cpu, chip8& chip, uint8_t x, uint8_t y, uint16_t nn, uint8_t
         break;
     }
 }
+
+void system_ops(cpu& cpu, chip8& chip, uint8_t x, uint8_t nn){
+    switch (nn)
+    {
+        case 7:
+        cpu.V[x] = chip.delay_timer.get();
+        break;
+
+        case 0x0A:
+        bool key_pressed = false;
+        for(int i = 0; i < 16; i++){
+            if(chip.keypad[i] == 1){
+                key_pressed = true; 
+                cpu.V[x] = i;
+                break;
+            }
+        }
+        cpu.pc = key_pressed ? cpu.pc : cpu.pc - 2;
+        break;
+
+        case 15:
+        chip.delay_timer.set(cpu.V[x]);
+        break;
+    
+        case 18:
+        chip.sound_timer.set(cpu.V[x]);
+        break;
+
+        case 0x1E:
+        cpu.I += cpu.V[x];
+        break;
+
+        case 29:
+        cpu.I = FONT_START_ADDRESS + (cpu.V[x] * 5);
+        break;
+
+        case 33:
+        chip.ram[cpu.I] = cpu.V[x] / 100;
+        chip.ram[cpu.I] = (cpu.V[x] / 10) % 10;
+        chip.ram[cpu.I] = (cpu.V[x] % 10);
+        break;
+
+        case 55:
+        for(int i = 0; i < x; i++)
+            chip.ram[cpu.I + i] = cpu.V[i];
+        break;
+
+        case 65:
+        for(int i = 0; i < x; i++)
+            cpu.V[i] = chip.ram[cpu.I + i]; 
+        break;
+
+        default:
+        break;
+    }
+}

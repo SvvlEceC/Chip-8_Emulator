@@ -4,6 +4,8 @@
 #include "timer.h"
 #include "cpu.h"
 
+#define FONT_START_ADDRESS 0x50
+
 class chip8
 {
 private:
