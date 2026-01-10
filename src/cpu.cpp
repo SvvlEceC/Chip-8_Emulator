@@ -1,3 +1,5 @@
+#include <random>
+#include <time.h>
 #include "../include/cpu.h"
 #include "../include/instructions.h"
 
@@ -22,6 +24,7 @@ void cpu::decode_and_execute(chip8& chip, uint16_t opcode){
         break;
 
         case 1:
+        pc = nnn;
         break;
 
         case 2:
@@ -56,12 +59,16 @@ void cpu::decode_and_execute(chip8& chip, uint16_t opcode){
         break;
 
         case 0x0A:
+        I = nnn;
         break;
 
         case 0x0B:
+        pc = nnn;
         break;
 
         case 0x0C:
+        srand(time(0));
+        V[x] = nn & (rand() % 255);
         break;
 
         case 0x0D:
