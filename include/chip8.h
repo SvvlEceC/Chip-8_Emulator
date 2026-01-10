@@ -7,6 +7,7 @@
 class chip8
 {
 private:
+public:
     uint8_t ram[4096];
     uint16_t stack[16];
     uint8_t keypad[16];
@@ -14,7 +15,6 @@ private:
     cpu cpu;
     timer delay_timer;
     timer sound_timer;
-public:
     chip8(/* args */);
     ~chip8();
 
