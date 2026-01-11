@@ -1,6 +1,7 @@
 #ifndef CHIP8
 #define CHIP8
 #include <stdint.h>
+#include <string.h>
 #include "timer.h"
 #include "cpu.h"
 
@@ -18,10 +19,12 @@ public:
     cpu cpu;
     timer delay_timer;
     timer sound_timer;
-    chip8(/* args */);
+    chip8();
     ~chip8();
 
     uint8_t get_delay_timer();
     uint8_t get_sound_timer();
+
+    void load_rom(std::string path);
 };
 #endif
