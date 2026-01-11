@@ -13,7 +13,8 @@ public:
     uint8_t ram[4096];
     uint16_t stack[16];
     uint8_t keypad[16];
-    bool display[64 * 32];
+    uint8_t display[64 * 32];
+    bool update_display;
     cpu cpu;
     timer delay_timer;
     timer sound_timer;
