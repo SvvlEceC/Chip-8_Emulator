@@ -1,13 +1,19 @@
 #include <random>
 #include <time.h>
 #include "../include/cpu.h"
+#include "../include/chip8.h"
 #include "../include/instructions.h"
 
+cpu::cpu(): pc(0), sp(0), I(0){
+    srand(time(0));
+    for(int i = 0; i < 16; i++) V[i] = 0;
+}
+
 uint16_t cpu::fetch(uint8_t* ram){
-    if(pc >= 4096) return -1;
+    if(pc >= 4096) exit(1);
     uint16_t opcode = (ram[pc] << 8) | ram[pc + 1];
     pc += 2;
-
+    
     return opcode;
 }
 
@@ -21,6 +27,15 @@ void cpu::decode_and_execute(chip8& chip, uint16_t opcode){
 
     switch (s){
         case 0:
+        if(nn == 0xE0){
+            for(int i = 0; i < 64 * 32; i++){
+                chip.display[i] = 0;
+            }
+        }
+        else if(nn == 0xEE){
+            pc = chip.stack[sp];
+            sp--;
+        }
         break;
 
         case 1:
@@ -28,6 +43,13 @@ void cpu::decode_and_execute(chip8& chip, uint16_t opcode){
         break;
 
         case 2:
+        if(sp + 1 >= 16){
+            printf("Stack Overflow!");
+            abort();
+        }
+        chip.stack[++sp] = pc;
+        pc = nnn;
+
         break;
 
         case 3:
@@ -63,15 +85,38 @@ void cpu::decode_and_execute(chip8& chip, uint16_t opcode){
         break;
 
         case 0x0B:
-        pc = nnn;
+        pc = nnn + V[0];
         break;
 
         case 0x0C:
-        srand(time(0));
-        V[x] = nn & (rand() % 255);
+        V[x] = nn & (rand() % 256);
         break;
 
-        case 0x0D:
+        case 0x0D:{
+            V[0xF] = 0;
+            for(int i = 0; i < n; i++){
+                uint8_t val = chip.ram[i + I];
+                uint8_t x_s = V[x] % 64;
+                uint8_t y_s = V[y] % 32;
+                
+                for(int j = 7; j >= 0; j--){
+                    uint8_t px = (7 - j) + x_s;
+                    uint8_t py = y_s + i;
+
+                    if(px >= 64 || py >= 32)
+                        continue;
+                    
+                    uint16_t display_idx = (py * 64) + px;
+                    uint8_t new_px_val = (val & (1 << j)) >> j;
+
+                    if(chip.display[display_idx] & new_px_val)
+                        V[0xF] = 1;
+
+                    chip.display[display_idx] ^= new_px_val;
+                }
+            }
+            chip.update_display = true;
+        }
         break;
 
         case 0x0E:
@@ -79,9 +124,7 @@ void cpu::decode_and_execute(chip8& chip, uint16_t opcode){
         break;        
 
         case 0x0F:
-        break;
-
-        default:
+        system_ops(*this, chip, x, nn);
         break;
     }
 }

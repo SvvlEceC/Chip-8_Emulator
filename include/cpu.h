@@ -4,15 +4,13 @@
 
 struct chip8;
 
-class cpu
-{
-private:
+class cpu{
 public:
     uint16_t I;
     uint16_t pc;
     uint8_t sp;
     uint8_t V[16];
-    cpu(/* args */);
+    cpu();
     ~cpu();
 
     uint16_t fetch(uint8_t* ram);
