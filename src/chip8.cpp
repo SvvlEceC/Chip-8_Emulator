@@ -1,5 +1,6 @@
-#include "../include/chip8.h"
 #include <string>
+#include <fstream>
+#include "../include/chip8.h"
 
 chip8::chip8(){
     uint8_t font_set[80] = {
@@ -35,6 +36,19 @@ chip8::chip8(){
     }
 }
 
-void load_rom(std::string path){
-    
+void chip8::load_rom(std::string path){
+    if(std::ifstream in{path, std::ios::binary}){
+        in.seekg(0, std::ios::end);
+        auto size = in.tellg();
+        in.seekg(0, std::ios::beg);
+
+        if(size > 3584){
+            printf("Unable to load rom, Capacity exceeded\n");
+            return;
+        }
+
+        in.read((char*)(ram + 0x200), size);
+    }
+    else
+        printf("Unable to find rom");
 }
