@@ -1,8 +1,8 @@
 #include "../include/instructions.h"
-#include "../include/cpu.h"
+#include "../include/Cpu.h"
 #include "../include/chip8.h"
 
-void arithmetic(cpu& cpu, uint8_t x, uint8_t y, uint8_t n){
+void arithmetic(Cpu& cpu, uint8_t x, uint8_t y, uint8_t n){
     switch(n){
         case 0:
         cpu.V[x] = cpu.V[y];
@@ -52,7 +52,7 @@ void arithmetic(cpu& cpu, uint8_t x, uint8_t y, uint8_t n){
     }
 }
 
-void condition(cpu& cpu, chip8& chip, uint8_t x, uint8_t y, uint16_t nn, uint8_t s){
+void condition(Cpu& cpu, chip8& chip, uint8_t x, uint8_t y, uint16_t nn, uint8_t s){
     switch(s){
         case 3:
         if(cpu.V[x] == nn) cpu.pc += 2;
@@ -71,16 +71,18 @@ void condition(cpu& cpu, chip8& chip, uint8_t x, uint8_t y, uint16_t nn, uint8_t
         break;
 
         case 0xE:
-        if(nn == 0x9E)
+        if(nn == 0x9E){
             if(chip.keypad[cpu.V[x]]) cpu.pc += 2;
+        }
 
-        else if(nn == 0xA1)
+        else if(nn == 0xA1){
             if(!chip.keypad[cpu.V[x]]) cpu.pc += 2;
+        }
         break;
     }
 }
 
-void system_ops(cpu& cpu, chip8& chip, uint8_t x, uint8_t nn){
+void system_ops(Cpu& cpu, chip8& chip, uint8_t x, uint8_t nn){
     switch (nn)
     {
         case 0x07:

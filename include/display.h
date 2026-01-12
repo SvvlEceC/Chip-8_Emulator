@@ -9,10 +9,14 @@
 typedef struct{
     SDL_Window* window;
     SDL_Renderer* renderer;
+    SDL_AudioDeviceID deviceId;
 }App;
 
-void init_SDL();
-void control_input();
+struct chip8;
+
+void init_SDL(chip8& chip);
+void control_input(chip8& chip);
 void prepare_scene();
-void present_scene();
+void present_scene(chip8& chip);
+void close();
 #endif

@@ -1,9 +1,9 @@
 #ifndef CHIP8
 #define CHIP8
 #include <stdint.h>
-#include <string.h>
+#include <string>
 #include "timer.h"
-#include "cpu.h"
+#include "Cpu.h"
 
 #define FONT_START_ADDRESS 0x50
 
@@ -16,7 +16,7 @@ public:
     uint8_t keypad[16];
     uint8_t display[64 * 32];
     bool update_display;
-    cpu cpu;
+    Cpu cpu;
     timer delay_timer;
     timer sound_timer;
     chip8();
