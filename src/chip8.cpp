@@ -1,4 +1,4 @@
-#include <string>
+#include <string.h>
 #include <fstream>
 #include "../include/chip8.h"
 
@@ -22,10 +22,10 @@ chip8::chip8(){
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     };
 
-    memset(&ram, 0, sizeof(uint8_t) * 4096);
-    memset(&stack, 0, sizeof(uint8_t) * 16);
-    memset(&keypad, 0, sizeof(uint8_t) * 16);
-    memset(&display, 0, sizeof(uint8_t) * 64 * 32);
+    memset(&ram, 0, sizeof(ram));
+    memset(&stack, 0, sizeof(stack));
+    memset(&keypad, 0, sizeof(keypad));
+    memset(&display, 0, sizeof(display));
 
     update_display = false;
     delay_timer.set(0);
@@ -35,6 +35,8 @@ chip8::chip8(){
         ram[i + FONT_START_ADDRESS] = font_set[i];
     }
 }
+
+chip8::~chip8() {}
 
 void chip8::load_rom(std::string path){
     if(std::ifstream in{path, std::ios::binary}){

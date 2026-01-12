@@ -3,63 +3,6 @@
 
 static App app;
 
-void init_SDL(){
-    memset(&app, 0, sizeof(App));
-    
-    int rendererFlag, windowFlag;
-
-    rendererFlag = SDL_RENDERER_ACCELERATED;
-
-    windowFlag = 0;
-
-    if(SDL_Init(SDL_INIT_VIDEO) < 0){
-        printf("Cannot initialize: %s\n", SDL_GetError());
-        exit(1);
-    }
-
-    app.window = SDL_CreateWindow("Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, W * SCALE, H * SCALE, windowFlag);
-
-    if(!app.window){
-        printf("Cannot open window: %s\n", SDL_GetError());
-        exit(1);
-    }
-
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-
-    app.renderer = SDL_CreateRenderer(app.window, -1, rendererFlag);
-
-    if(!app.renderer){
-        printf("Cannot create renderer: %s\n", SDL_GetError());
-        exit(1);
-    }
-}
-void control_input(chip8& chip){
-    SDL_Event event;
-
-    while(SDL_PollEvent(&event)){
-        switch (event.type)
-        {
-            case SDL_QUIT:
-            exit(0);
-            break;
-
-            case SDL_KEYDOWN:{
-                uint8_t index = keyboard_event(event.key);
-                if(index != 0xFF)
-                    chip.keypad[index] = 1;
-            }
-            break;
-
-            case SDL_KEYUP:{
-                uint8_t index = keyboard_event(event.key);
-                if(index != 0xFF)
-                    chip.keypad[index] = 1;
-            }
-            break;
-        }
-    }
-}
-
 uint8_t keyboard_event(SDL_KeyboardEvent key){
     switch (key.keysym.sym)
     {
@@ -146,4 +89,92 @@ void present_scene(chip8& chip){
         }
     }
     SDL_RenderPresent(app.renderer);
+}
+
+void close(){
+    if(app.deviceId > 0)
+        SDL_CloseAudioDevice(app.deviceId);
+    SDL_DestroyRenderer(app.renderer);
+    SDL_DestroyWindow(app.window);
+    SDL_Quit();
+}
+
+void audio_callback(void* userdata, Uint8* stream, int len){
+    if(((chip8*)userdata)->sound_timer.get() > 0){
+
+    }
+
+}
+
+void init_SDL(chip8& chip){
+    memset(&app, 0, sizeof(App));
+    // SDL_AudioSpec want, have;
+
+    // want.freq = 4410;
+    // want.format = AUDIO_S8;
+    // want.channels = 1;
+    // want.samples = 4096;
+    // want.callback = audio_callback;
+    // want.userdata = &chip;
+
+    // app.deviceId = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
+
+    // if (app.deviceId == 0) {
+    //     printf("Unable to create sound device: %s\n", SDL_GetError());
+    // } else {
+    //     SDL_PauseAudioDevice(app.deviceId, 0);
+    // }
+    
+    int rendererFlag, windowFlag;
+
+    rendererFlag = SDL_RENDERER_ACCELERATED;
+
+    windowFlag = 0;
+
+    if(SDL_Init(SDL_INIT_VIDEO) < 0){
+        printf("Cannot initialize: %s\n", SDL_GetError());
+        exit(1);
+    }
+
+    app.window = SDL_CreateWindow("Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, W * SCALE, H * SCALE, windowFlag);
+
+    if(!app.window){
+        printf("Cannot open window: %s\n", SDL_GetError());
+        exit(1);
+    }
+
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+
+    app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+    if(!app.renderer){
+        printf("Cannot create renderer: %s\n", SDL_GetError());
+        exit(1);
+    }
+}
+void control_input(chip8& chip){
+    SDL_Event event;
+
+    while(SDL_PollEvent(&event)){
+        switch (event.type)
+        {
+            case SDL_QUIT:
+            exit(0);
+            break;
+
+            case SDL_KEYDOWN:{
+                uint8_t index = keyboard_event(event.key);
+                if(index != 0xFF)
+                    chip.keypad[index] = 1;
+            }
+            break;
+
+            case SDL_KEYUP:{
+                uint8_t index = keyboard_event(event.key);
+                if(index != 0xFF)
+                    chip.keypad[index] = 0;
+            }
+            break;
+        }
+    }
 }

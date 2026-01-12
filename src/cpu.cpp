@@ -1,16 +1,18 @@
 #include <random>
 #include <time.h>
 #include <string.h>
-#include "../include/cpu.h"
+#include "../include/Cpu.h"
 #include "../include/chip8.h"
 #include "../include/instructions.h"
 
-cpu::cpu(): pc(0x200), sp(0), I(0){
+Cpu::Cpu(): pc(0x200), sp(0), I(0){
     srand(time(0));
     memset(&V, 0, sizeof(uint8_t) * 16);
 }
 
-uint16_t cpu::fetch(uint8_t* ram){
+Cpu::~Cpu(){}
+
+uint16_t Cpu::fetch(uint8_t* ram){
     if(pc >= 4096) exit(1);
     uint16_t opcode = (ram[pc] << 8) | ram[pc + 1];
     pc += 2;
@@ -18,14 +20,16 @@ uint16_t cpu::fetch(uint8_t* ram){
     return opcode;
 }
 
-void cpu::decode_and_execute(chip8& chip, uint16_t opcode){
+void Cpu::decode_and_execute(chip8& chip, uint16_t opcode){
     uint16_t x((opcode & 0x0F00) >> 8);
     uint16_t y((opcode & 0x00F0) >> 4);
     uint16_t n(opcode & 0x000F);
     uint16_t nn(opcode & 0x00FF);
     uint16_t nnn(opcode & 0x0FFF);
     uint16_t s((opcode & 0xF000) >> 12);
-
+if(chip.keypad[1] != 0) printf("DIKKAT: Tus 1 basili algilaniyor!\n");
+    // Her komutu işlemeden önce terminale yazdırır
+printf("PC: 0x%X | Opcode: 0x%X | SP: %d\n", pc - 2, opcode, sp);
     switch (s){
         case 0:
         if(nn == 0xE0){
@@ -34,8 +38,12 @@ void cpu::decode_and_execute(chip8& chip, uint16_t opcode){
             }
         }
         else if(nn == 0xEE){
-            pc = chip.stack[sp];
-            sp--;
+            if(sp < 1){
+                printf("Stack is empty!\n");
+                exit(1);
+            }
+            pc = chip.stack[--sp];
+            printf("RET yapildi! Yeni PC: 0x%X\n", pc);
         }
         break;
 
@@ -44,11 +52,12 @@ void cpu::decode_and_execute(chip8& chip, uint16_t opcode){
         break;
 
         case 2:
-        if(sp + 1 >= 16){
-            printf("Stack Overflow!");
-            abort();
+        if(sp >= 16){
+            printf("Stack Overflow! Son PC: 0x%X, Gidilmek istenen: 0x%X\n", pc, nnn);
+            printf("Stack Overflow!\n");
+            exit(1);
         }
-        chip.stack[++sp] = pc;
+        chip.stack[sp++] = pc;
         pc = nnn;
 
         break;
