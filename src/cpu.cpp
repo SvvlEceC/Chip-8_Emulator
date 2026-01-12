@@ -1,12 +1,13 @@
 #include <random>
 #include <time.h>
+#include <string.h>
 #include "../include/cpu.h"
 #include "../include/chip8.h"
 #include "../include/instructions.h"
 
-cpu::cpu(): pc(0), sp(0), I(0){
+cpu::cpu(): pc(0x200), sp(0), I(0){
     srand(time(0));
-    for(int i = 0; i < 16; i++) V[i] = 0;
+    memset(&V, 0, sizeof(uint8_t) * 16);
 }
 
 uint16_t cpu::fetch(uint8_t* ram){
