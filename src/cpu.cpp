@@ -27,9 +27,7 @@ void Cpu::decode_and_execute(chip8& chip, uint16_t opcode){
     uint16_t nn(opcode & 0x00FF);
     uint16_t nnn(opcode & 0x0FFF);
     uint16_t s((opcode & 0xF000) >> 12);
-if(chip.keypad[1] != 0) printf("DIKKAT: Tus 1 basili algilaniyor!\n");
-    // Her komutu işlemeden önce terminale yazdırır
-printf("PC: 0x%X | Opcode: 0x%X | SP: %d\n", pc - 2, opcode, sp);
+
     switch (s){
         case 0:
         if(nn == 0xE0){
@@ -43,7 +41,6 @@ printf("PC: 0x%X | Opcode: 0x%X | SP: %d\n", pc - 2, opcode, sp);
                 exit(1);
             }
             pc = chip.stack[--sp];
-            printf("RET yapildi! Yeni PC: 0x%X\n", pc);
         }
         break;
 
@@ -53,7 +50,6 @@ printf("PC: 0x%X | Opcode: 0x%X | SP: %d\n", pc - 2, opcode, sp);
 
         case 2:
         if(sp >= 16){
-            printf("Stack Overflow! Son PC: 0x%X, Gidilmek istenen: 0x%X\n", pc, nnn);
             printf("Stack Overflow!\n");
             exit(1);
         }

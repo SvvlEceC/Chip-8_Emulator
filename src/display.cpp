@@ -100,30 +100,56 @@ void close(){
 }
 
 void audio_callback(void* userdata, Uint8* stream, int len){
-    if(((chip8*)userdata)->sound_timer.get() > 0){
+    static uint32_t running_time = 0;
+    const int frequency = 44100;
+    const int beep_freq = 440;
+    const int volume = 3000;
 
+    int16_t* buffer = (int16_t*)stream;
+    int samples = len / sizeof(int16_t);
+
+    if(((chip8*)userdata)->sound_timer.get() > 0){
+        for(int i = 0; i < samples; i++){
+            if(!((running_time++ / (frequency / (beep_freq * 2))) % 2)){
+                *(buffer + i) = volume;
+            }
+            else{
+                *(buffer + i) = -volume;
+            }
+        }    
+    }
+    else{
+        memset(stream, 0, len);
     }
 
 }
 
 void init_SDL(chip8& chip){
     memset(&app, 0, sizeof(App));
-    // SDL_AudioSpec want, have;
 
-    // want.freq = 4410;
-    // want.format = AUDIO_S8;
-    // want.channels = 1;
-    // want.samples = 4096;
-    // want.callback = audio_callback;
-    // want.userdata = &chip;
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0){
+        printf("Cannot initialize: %s\n", SDL_GetError());
+        exit(1);
+    }
 
-    // app.deviceId = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
+    SDL_AudioSpec want, have;
 
-    // if (app.deviceId == 0) {
-    //     printf("Unable to create sound device: %s\n", SDL_GetError());
-    // } else {
-    //     SDL_PauseAudioDevice(app.deviceId, 0);
-    // }
+    want.freq = 44100;
+    want.format = AUDIO_S16SYS;
+    want.channels = 1;
+    want.samples = 4096;
+    want.callback = audio_callback;
+    want.userdata = &chip;
+
+
+    
+    app.deviceId = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
+
+    if (app.deviceId == 0) {
+        printf("Unable to create sound device: %s\n", SDL_GetError());
+    } else {
+        SDL_PauseAudioDevice(app.deviceId, 0);
+    }
     
     int rendererFlag, windowFlag;
 
@@ -131,10 +157,6 @@ void init_SDL(chip8& chip){
 
     windowFlag = 0;
 
-    if(SDL_Init(SDL_INIT_VIDEO) < 0){
-        printf("Cannot initialize: %s\n", SDL_GetError());
-        exit(1);
-    }
 
     app.window = SDL_CreateWindow("Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, W * SCALE, H * SCALE, windowFlag);
 
