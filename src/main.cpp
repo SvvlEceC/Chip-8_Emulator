@@ -6,7 +6,7 @@ int main(int argc, char const *argv[]){
     chip8 chip;
 
     init_SDL(chip);
-    chip.load_rom("roms/Pong.ch8");
+    chip.load_rom("roms/Brix.ch8");
     atexit(close);
 
     while (1){
