@@ -9,6 +9,15 @@ CPU emulation, and real-time rendering.
 > Educational project – not intended to be cycle-accurate.
 
 ---
+## Example Usage
+    make run ROM=roms/Pong.ch8
+
+    make ibm
+    make brix
+    make pong
+    make tetris
+
+    make test1
 
 ## Features
 - Full CHIP-8 instruction set

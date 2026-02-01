@@ -1,29 +1,12 @@
 #include <cstdlib>
-#include <iostream>
-#include <filesystem>
-#include "display.h"
-#include "chip8.h"
+#include "../include/display.h"
+#include "../include/chip8.h"
 
 int main(int argc, char const *argv[]){
-    if(argc < 2){
-        std::cerr << "Error: NO ROM INPUT\nCorrect usage: ./chip8 <rom_path>";
-        return 1;
-    }
-
     chip8 chip;
+
     init_SDL(chip);
-
-    std::string rom_path = argv[1];
-
-    try
-    {
-        chip.load_rom(rom_path);
-    }
-    catch(const std::filesystem::filesystem_error& e)
-    {
-        std::cerr << e.what();
-    }
-    
+    chip.load_rom("roms/chip8-test-rom-with-audio.ch8");
     atexit(close);
 
     while (1){
