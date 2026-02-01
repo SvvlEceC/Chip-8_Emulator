@@ -1,12 +1,29 @@
 #include <cstdlib>
+#include <iostream>
+#include <filesystem>
 #include "display.h"
 #include "chip8.h"
 
 int main(int argc, char const *argv[]){
-    chip8 chip;
+    if(argc < 2){
+        std::cerr << "Error: NO ROM INPUT\nCorrect usage: ./chip8 <rom_path>";
+        return 1;
+    }
 
+    chip8 chip;
     init_SDL(chip);
-    chip.load_rom("roms/Brix.ch8");
+
+    std::string rom_path = argv[1];
+
+    try
+    {
+        chip.load_rom(rom_path);
+    }
+    catch(const std::filesystem::filesystem_error& e)
+    {
+        std::cerr << e.what();
+    }
+    
     atexit(close);
 
     while (1){
